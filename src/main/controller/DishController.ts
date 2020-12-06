@@ -4,7 +4,6 @@ import {DishRepository} from '../repository/DishRepository';
 import {AddDishDTO} from "../interface/AddDishDTO";
 import {Dish} from "../entity/Dish";
 import {UserRepository} from "../repository/UserRepository";
-import {CuisineType} from "../enum/CuisineType";
 import {PointsService} from "../services/PointsService";
 import {PointResult} from "../interface/PointResult";
 import {Role} from "../enum/Role";
@@ -54,7 +53,7 @@ export class DishController {
     };
 
     // delete one user
-    deleteUser = async (
+    deleteDish = async (
         req: Request,
         res: Response,
         next: NextFunction
@@ -128,7 +127,7 @@ export class DishController {
             // 6. Calculate points and add to user profile
             const pointService = new PointsService();
             const pointsResult: PointResult = pointService.calculatePoints(dish, user, previousDishes);
-            const x = await userRepository.increment({role: Role.SUPER_USER}, "points", pointsResult.pointsGained)
+            await userRepository.increment({role: Role.SUPER_USER}, "points", pointsResult.pointsGained)
 
             // 7. format result with points
             return res.status(200).send({...result, ...pointsResult});

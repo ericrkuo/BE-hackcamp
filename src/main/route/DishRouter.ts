@@ -13,7 +13,7 @@ export class DishRouter {
     // profile endpoint
     this.dishRouter.get('/', this.dishController.listAll);
     this.dishRouter.get('/:id', this.dishController.getOneById);
-    this.dishRouter.delete('/:id', this.dishController.deleteUser);
+    this.dishRouter.delete('/:id', this.dishController.deleteDish);
     // will only be concerned with super user
     this.dishRouter.post('/', this.dishController.addDish)
 
