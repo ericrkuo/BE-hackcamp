@@ -8,6 +8,8 @@ import {dishes_sample, users_sample} from "./resources/Data";
 import {errorHandler} from "./middleware/ErrorHandler";
 import {UserController} from "./controller/UserController";
 import {UserRouter} from "./route/UserRouter";
+import {DishRouter} from "./route/DishRouter";
+import {DishController} from "./controller/DishController";
 
 
 createConnection()
@@ -35,6 +37,10 @@ function registerRouters(app: Express) {
     const userController = new UserController();
     const userRouter = new UserRouter(userController);
     app.use('/users', userRouter.getRoutes());
+
+    const dishController = new DishController();
+    const dishRouter = new DishRouter(dishController);
+    app.use('/dishes', dishRouter.getRoutes());
 }
 
 async function loadSampleData() {

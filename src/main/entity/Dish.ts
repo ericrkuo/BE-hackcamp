@@ -27,7 +27,7 @@ export class Dish {
 
     /*
      * ManyToOne bidirectional relationship between Dish and User
-     * Many promotions can be owned/uploaded by one user
+     * Many dishes can be owned/uploaded by one user
      * On delete cascade on foreign key userId
      * Dish is the owning side of this association, contains column userId
      * */
