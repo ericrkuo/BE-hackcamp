@@ -101,15 +101,15 @@ export class DishController {
             // 5. Create Dish entity and persist
             // todo: replace CuisineType with cuisine type we receive
             const dish = new Dish(user, [], [], addDishDTO.name, CuisineType.SOUTHERN, [], "", "", addDishDTO.imageUrl)
+            const result = await dishRepository.save(dish);
 
             // 6. Calculate points and add to user profile
             const pointService = new PointsService();
-            const pointsResult: PointResult = pointService.calculatePoints(dish, previousDishes);
-            await userRepository.increment({role: Role.SUPER_USER}, "points", pointsResult.points)
+            const pointsResult: PointResult = pointService.calculatePoints(dish, user, previousDishes);
+            const x = await userRepository.increment({role: Role.SUPER_USER}, "points", pointsResult.pointsGained)
 
-            const result = await dishRepository.save(dish);
-            // todo 7. format result with points
-            return res.status(200).send(result);
+            // 7. format result with points
+            return res.status(200).send({...result, ...pointsResult});
         } catch (e) {
             next(e);
         }
