@@ -1,6 +1,10 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import * as dotenv from 'dotenv';
 import qs from 'qs';
+import {Recipe} from "../entity/Recipe";
+import {Nutrition} from "../entity/Nutrition";
+import {ImageAnalysisNutrient} from "../data/ImageAnalysisNutrient";
+import {CuisineType} from "../enum/CuisineType";
 
 class SpoonacularService {
 
@@ -10,12 +14,11 @@ class SpoonacularService {
 
     // Analyze a food image. Classify the image, guess the nutrition, and find a matching recipes.
     // 4 POINTS
-    getImageAnalysis(imageURL: string): Promise<JSON> {
+    async getImageAnalysis(imageURL: string): Promise<Array<Array<Recipe|Nutrition>>> {
         // array of recipes, and array of nutrients
         // value and unit for ingredient
         return axios
             .get(
-                // imageUrl=https://spoonacular.com/recipeImages/635350-240x150.jpg
                 'https://api.spoonacular.com/food/images/analyze?',
                 {
                     params: {
@@ -26,7 +29,23 @@ class SpoonacularService {
             )
             .then((response: AxiosResponse) => {
                 const result: JSON = response.data;
-                return Promise.resolve(result);
+
+                let recipes: Recipe[]  = []; //  recipeID, title, URL
+                let nutrients: Nutrition[] = []; // name, value, unit
+
+                for(let recipe of response.data.recipes) {
+                    let currRecipe = new Recipe(recipe.id, recipe.title, recipe.url);
+                    recipes.push(currRecipe);
+                }
+
+                for (let [key, value] of Object.entries(response.data.nutrition)) {
+                    if (value && typeof value === 'object') {
+                        let currVal = value as ImageAnalysisNutrient;
+                        let currNutrient = new Nutrition(key, currVal.value, currVal.unit);
+                        nutrients.push(currNutrient);
+                    }
+                }
+                return Promise.resolve([ recipes, nutrients ]);
             })
             .catch((err: AxiosError) => {
                 //API error message
@@ -41,7 +60,7 @@ class SpoonacularService {
 
     // Search through hundreds of thousands of recipes using advanced filtering and ranking.
     // 1 POINT and 0.01 POINTS PER RESULT
-    searchRecipes(query: string): Promise<JSON> {
+    async searchRecipes(query: string): Promise<JSON> {
         const queryURI: string = encodeURIComponent(query);
 
         return axios
@@ -70,7 +89,7 @@ class SpoonacularService {
 
     // Get a recipe's ingredient list.
     // 1 POINT
-    getIngredientsByRecipeID(recipeID: string): Promise<JSON> {
+    async getIngredientsByRecipeID(recipeID: string): Promise<Array<string>> {
         // todo: get array of ingredient names
         return axios
             .get(
@@ -82,8 +101,13 @@ class SpoonacularService {
                 }
             )
             .then((response: AxiosResponse) => {
-                const result: JSON = response.data;
-                return Promise.resolve(result);
+                let ingredients: string[] = [];
+
+                for(let ingredient of response.data.ingredients) {
+                    let name: string = ingredient.name;
+                    ingredients.push(name);
+                }
+                return Promise.resolve(ingredients);
             })
             .catch((err: AxiosError) => {
                 //API error message
@@ -98,7 +122,7 @@ class SpoonacularService {
 
     // Classify the recipe's cuisine.
     // 0.1 POINTS
-    classifyCuisine(title: string, ingredientList: string): Promise<JSON> {
+    async classifyCuisine(title: string, ingredientList: string): Promise<CuisineType> {
         let data = qs.stringify({title: title, ingredientList: ingredientList});
 
         return axios
@@ -112,8 +136,8 @@ class SpoonacularService {
                 }
             )
             .then((response: AxiosResponse) => {
-                const result: JSON = response.data;
-                return Promise.resolve(result);
+                const cuisineType = response.data.cuisine as CuisineType;
+                return Promise.resolve(cuisineType);
             })
             .catch((err: AxiosError) => {
                 //API error message

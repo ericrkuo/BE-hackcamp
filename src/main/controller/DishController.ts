@@ -8,8 +8,12 @@ import {CuisineType} from "../enum/CuisineType";
 import {PointsService} from "../services/PointsService";
 import {PointResult} from "../interface/PointResult";
 import {Role} from "../enum/Role";
+import {SpoonacularService} from "../services/SpoonacularService";
+import {Nutrition} from "../entity/Nutrition";
+import {Recipe} from "../entity/Recipe";
 
 export class DishController {
+    private spoonacularService: SpoonacularService = new SpoonacularService();
 
     // return all user
     listAll = async (
@@ -93,14 +97,34 @@ export class DishController {
             const user = await userRepository.findOneOrFail(userId);
             const previousDishes = await dishRepository.find();
 
-            // todo 1. analyze image, get nutritional and recipe information
-            // todo 2. For each of recipe Id's (take max 2), get list of ingredients
-            // todo 3. Take intersection of ingredients (remove duplicates)
-            // todo 4. Get cuisine (make sure to check is part of enum)
+            // 1. analyze image, get nutritional and recipe information
+            let imageAnalysis = await this.spoonacularService.getImageAnalysis(req.params.url); // whats the url?
+            let relatedRecipes = imageAnalysis[0] as Recipe[];
+            let nutrients = imageAnalysis[1] as Nutrition[];
+
+            // 2. For each of recipe Id's (take max 2), get list of ingredients
+            let currIngredients: Array<Array<string>> = [];
+            for (let i=0; i < 2; i++) {
+                let currRecipeID = relatedRecipes[i].id;
+                let ingredients: Array<string> = await this.spoonacularService.getIngredientsByRecipeID(currRecipeID);
+                currIngredients.push(ingredients);
+            }
+
+            // 3. Take intersection of ingredients (remove duplicates)
+            let finalIngredients;
+            if(currIngredients.length === 2) {
+                finalIngredients = currIngredients[0].filter(value => currIngredients[1].includes(value));
+            } else {
+                finalIngredients = currIngredients[0];
+            }
+
+            // 4. Get cuisine
+            // todo: title of dish?
+            let cuisine = await this.spoonacularService.classifyCuisine("userinputstring", finalIngredients.join("\n"));
 
             // 5. Create Dish entity and persist
             // todo: replace CuisineType with cuisine type we receive
-            const dish = new Dish(user, [], [], addDishDTO.name, CuisineType.SOUTHERN, [], "", "", addDishDTO.imageUrl)
+            const dish = new Dish(user, relatedRecipes, nutrients, addDishDTO.name, cuisine, finalIngredients, "", "", addDishDTO.imageUrl)
 
             // 6. Calculate points and add to user profile
             const pointService = new PointsService();
