@@ -5,18 +5,21 @@ import * as dotenv from "dotenv";
 import {UserRepository} from "./repository/UserRepository";
 import {DishRepository} from "./repository/DishRepository";
 import {dishes_sample, users_sample} from "./resources/Data";
+import {errorHandler} from "./middleware/ErrorHandler";
+import {UserController} from "./controller/UserController";
+import {UserRouter} from "./route/UserRouter";
 
-const app = express();
-dotenv.config();
 
 createConnection()
     .then(async (connection) => {
+        dotenv.config();
         const app = express();
         app.use(bodyParser.json());
-
         await loadSampleData();
 
         registerRouters(app);
+        // register handlers AFTER registering routes\
+        app.use(errorHandler);
 
         app.listen(process.env.PORT, () => {
             console.log(`⚡️[server]: Server is running at http://localhost:${process.env.PORT}`);
@@ -28,6 +31,10 @@ createConnection()
 
 function registerRouters(app: Express) {
     app.get('/', (req, res) => res.send('Express + TypeScript Server'));
+
+    const userController = new UserController();
+    const userRouter = new UserRouter(userController);
+    app.use('/users', userRouter.getRoutes());
 }
 
 async function loadSampleData() {

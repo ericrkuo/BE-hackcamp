@@ -6,8 +6,9 @@ import {CuisineType} from "../enum/CuisineType";
 import {Nutrition} from "../entity/Nutrition";
 
 const user1 = new User("ericrkuo@gmail.com", "Eric Kuo", "https://avatars1.githubusercontent.com/u/49849754?s=460&u=f053a589aeb7706a6f9630833f33a5688d0494ba&v=4", 100, Role.FRIEND);
-const user2 = new User("lilyyduu@gmail.com", "Lily Du", "https://avatars0.githubusercontent.com/u/54044854?s=460&u=6420652b7e93a5e0209c12a177202a9574c5ac90&v=4", 100, Role.FRIEND);
-const user3 = new User("andrewzulaybar@gmail.com", "Andrew Zulaybar", "https://avatars3.githubusercontent.com/u/44531733?s=460&u=6dbe15590ee8e9da47e4c201d80b4b1340a6c72a&v=4", 100, Role.FRIEND);
+const user2 = new User("lilyyduu@gmail.com", "Lily Du", "https://avatars0.githubusercontent.com/u/54044854?s=460&u=6420652b7e93a5e0209c12a177202a9574c5ac90&v=4", 200, Role.FRIEND);
+const user3 = new User("andrewzulaybar@gmail.com", "Andrew Zulaybar", "https://avatars3.githubusercontent.com/u/44531733?s=460&u=6dbe15590ee8e9da47e4c201d80b4b1340a6c72a&v=4", 300, Role.FRIEND);
+const user4 = new User("superuser@gmail.com", "superuser", "", 0, Role.SUPER_USER);
 
 // todo: make these by calling spoonacular API on the dishes provided
 const recipe1 = new Recipe("123", "test", "test");
@@ -45,6 +46,6 @@ const dish4 = new Dish(user2, [recipe7, recipe8], [nutrition7, nutrition8], "Amy
 const dish5 = new Dish(user3, [recipe9, recipe10], [nutrition9, nutrition10], "Piri piri chicken", CuisineType.AFRICAN, ["chicken", "coconut", "cashews", "peanuts"], "", "", "https://user-images.githubusercontent.com/49849754/101288833-7e229e80-37ad-11eb-839f-b96b68f909f9.png");
 const dish6 = new Dish(user3, [recipe11, recipe12], [nutrition11, nutrition12], "My take on NY Style Pizza", CuisineType.AMERICAN, ["flour", "cheese", "tomato sauce"], "", "", "https://user-images.githubusercontent.com/49849754/101288872-be821c80-37ad-11eb-94b5-9c3522b849e7.png");
 
-export const users_sample = [user1, user2, user3];
+export const users_sample = [user1, user2, user3, user4];
 export const dishes_sample = [dish1, dish2, dish3, dish4, dish5, dish6];
 
