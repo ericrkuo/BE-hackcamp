@@ -98,42 +98,41 @@ export class DishController {
             const previousDishes = await dishRepository.find();
 
             // 1. analyze image, get nutritional and recipe information
-            let imageAnalysis = await this.spoonacularService.getImageAnalysis(req.params.url); // whats the url?
+            let imageAnalysis = await this.spoonacularService.getImageAnalysis(addDishDTO.imageUrl);
             let relatedRecipes = imageAnalysis[0] as Recipe[];
             let nutrients = imageAnalysis[1] as Nutrition[];
 
             // 2. For each of recipe Id's (take max 2), get list of ingredients
             let currIngredients: Array<Array<string>> = [];
             for (let i=0; i < 2; i++) {
-                let currRecipeID = relatedRecipes[i].id;
+                let currRecipeID = relatedRecipes[i].recipeId;
                 let ingredients: Array<string> = await this.spoonacularService.getIngredientsByRecipeID(currRecipeID);
                 currIngredients.push(ingredients);
             }
 
-            // 3. Take intersection of ingredients (remove duplicates)
+            // 3. Take union of ingredients (remove duplicates)
             let finalIngredients;
             if(currIngredients.length === 2) {
-                finalIngredients = currIngredients[0].filter(value => currIngredients[1].includes(value));
+                finalIngredients = currIngredients[0].concat(currIngredients[1].filter((item) => currIngredients[0].indexOf(item) < 0))
+                    // currIngredients[0].filter(value => currIngredients[1].includes(value));
             } else {
                 finalIngredients = currIngredients[0];
             }
 
             // 4. Get cuisine
-            // todo: title of dish?
-            let cuisine = await this.spoonacularService.classifyCuisine("userinputstring", finalIngredients.join("\n"));
+            let cuisine = await this.spoonacularService.classifyCuisine(addDishDTO.name, finalIngredients.join("\n"));
 
             // 5. Create Dish entity and persist
-            // todo: replace CuisineType with cuisine type we receive
-            const dish = new Dish(user, relatedRecipes, nutrients, addDishDTO.name, cuisine, finalIngredients, "", "", addDishDTO.imageUrl)
+            const dish = new Dish(user, relatedRecipes, nutrients, addDishDTO.name, addDishDTO.description, cuisine, finalIngredients, "", "", addDishDTO.imageUrl);
+            const result = await dishRepository.save(dish);
 
             // 6. Calculate points and add to user profile
             const pointService = new PointsService();
-            const pointsResult: PointResult = pointService.calculatePoints(dish, previousDishes);
-            await userRepository.increment({role: Role.SUPER_USER}, "points", pointsResult.points)
+            const pointsResult: PointResult = pointService.calculatePoints(dish, user, previousDishes);
+            const x = await userRepository.increment({role: Role.SUPER_USER}, "points", pointsResult.pointsGained)
 
-            const result = await dishRepository.save(dish);
-            // todo 7. format result with points
-            return res.status(200).send(result);
+            // 7. format result with points
+            return res.status(200).send({...result, ...pointsResult});
         } catch (e) {
             next(e);
         }

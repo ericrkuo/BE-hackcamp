@@ -10,11 +10,12 @@ import {Nutrition} from "./Nutrition";
 @Entity()
 export class Dish {
 
-    constructor(user: User, relatedRecipes: Recipe[], nutritions: Nutrition[], name: string, cuisine: CuisineType, ingredients: string[], latitude: string, longitude: string, imageUrl: string) {
+    constructor(user: User, relatedRecipes: Recipe[], nutritions: Nutrition[], name: string, description: string, cuisine: CuisineType, ingredients: string[], latitude: string, longitude: string, imageUrl: string) {
         this.user = user;
         this.relatedRecipes = relatedRecipes;
         this.nutritions = nutritions;
         this.name = name;
+        this.description = description;
         this.cuisine = cuisine;
         this.ingredients = ingredients;
         this.latitude = latitude;
@@ -58,6 +59,9 @@ export class Dish {
 
     @Column()
     name: string;
+
+    @Column()
+    description: string;
 
     @Column({
         type: 'enum',

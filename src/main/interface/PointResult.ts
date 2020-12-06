@@ -1,4 +1,6 @@
 export interface PointResult {
-    points: number;
+    previousPoints: number;
+    pointsGained: number;
+    totalPoints: number;
     message: string;
 }
