@@ -12,8 +12,9 @@ export class UserRouter {
   getRoutes(): Router {
     // profile endpoint
     this.userRouter.get('/', this.userController.listAll);
+    this.userRouter.get('/superUser', this.userController.getSuperUser);
     this.userRouter.get('/:id', this.userController.getOneById);
-    this.userRouter.patch('/:id', this.userController.editUser);
+    this.userRouter.patch('/superUser', this.userController.editSuperUser);
     this.userRouter.delete('/:id', this.userController.deleteUser);
     // get uploaded dishes endpoint
     this.userRouter.get(

@@ -88,14 +88,14 @@ export class DishController {
     ): Promise<any> => {
         try {
             // get the ID from the url
-            const userId = req.params.userId;
             const addDishDTO: AddDishDTO = req.body;
 
             const userRepository = getCustomRepository(UserRepository);
             const dishRepository = getCustomRepository(DishRepository);
 
-            const user = await userRepository.findOneOrFail(userId);
-            const previousDishes = await dishRepository.find();
+            const user = await userRepository.findOneOrFail({role: Role.SUPER_USER});
+            // only get super users dishes
+            const previousDishes = await dishRepository.find({user: user});
 
             // 1. analyze image, get nutritional and recipe information
             let imageAnalysis = await this.spoonacularService.getImageAnalysis(addDishDTO.imageUrl);

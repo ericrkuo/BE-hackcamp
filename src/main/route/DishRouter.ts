@@ -14,7 +14,8 @@ export class DishRouter {
     this.dishRouter.get('/', this.dishController.listAll);
     this.dishRouter.get('/:id', this.dishController.getOneById);
     this.dishRouter.delete('/:id', this.dishController.deleteUser);
-    this.dishRouter.post('/:userId', this.dishController.addDish)
+    // will only be concerned with super user
+    this.dishRouter.post('/', this.dishController.addDish)
 
     return this.dishRouter;
   }
