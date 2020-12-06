@@ -114,7 +114,6 @@ export class DishController {
             let finalIngredients;
             if(currIngredients.length === 2) {
                 finalIngredients = currIngredients[0].concat(currIngredients[1].filter((item) => currIngredients[0].indexOf(item) < 0))
-                    // currIngredients[0].filter(value => currIngredients[1].includes(value));
             } else {
                 finalIngredients = currIngredients[0];
             }

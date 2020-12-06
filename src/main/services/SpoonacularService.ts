@@ -15,8 +15,6 @@ class SpoonacularService {
     // Analyze a food image. Classify the image, guess the nutrition, and find a matching recipes.
     // 4 POINTS
     async getImageAnalysis(imageURL: string): Promise<Array<Array<Recipe|Nutrition>>> {
-        // array of recipes, and array of nutrients
-        // value and unit for ingredient
         return axios
             .get(
                 'https://api.spoonacular.com/food/images/analyze?',
@@ -30,8 +28,8 @@ class SpoonacularService {
             .then((response: AxiosResponse) => {
                 const result: JSON = response.data;
 
-                let recipes: Recipe[]  = []; //  recipeID, title, URL
-                let nutrients: Nutrition[] = []; // name, value, unit
+                let recipes: Recipe[]  = [];
+                let nutrients: Nutrition[] = [];
 
                 for(let recipe of response.data.recipes) {
                     let currRecipe = new Recipe(recipe.id, recipe.title, recipe.url);
@@ -90,7 +88,6 @@ class SpoonacularService {
     // Get a recipe's ingredient list.
     // 1 POINT
     async getIngredientsByRecipeID(recipeID: string): Promise<Array<string>> {
-        // todo: get array of ingredient names
         return axios
             .get(
                 'https://api.spoonacular.com/recipes/' + recipeID + '/ingredientWidget.json?',
