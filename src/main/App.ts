@@ -1,6 +1,7 @@
 import express, {Express} from 'express';
 import {createConnection, getCustomRepository} from "typeorm";
 import bodyParser from "body-parser";
+import cors from "cors";
 import * as dotenv from "dotenv";
 import {UserRepository} from "./repository/UserRepository";
 import {DishRepository} from "./repository/DishRepository";
@@ -17,6 +18,22 @@ createConnection()
         dotenv.config();
         const app = express();
         app.use(bodyParser.json());
+
+        const options: cors.CorsOptions = {
+            allowedHeaders: [
+                'Origin',
+                'X-Requested-With',
+                'Content-Type',
+                'Accept',
+                'X-Access-Token',
+            ],
+            credentials: true,
+            methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
+            origin: "http://localhost:3000",
+            preflightContinue: false,
+        };
+
+        app.use(cors(options))
         await loadSampleData();
 
         registerRouters(app);
